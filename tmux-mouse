@@ -1,0 +1,47 @@
+#!/bin/bash
+
+usage() {
+  cat <<EOF
+usage: $0 [-ch] [on|off]
+
+set tmux mouse mode.
+toggle mouse mode if no argument is specified, otherwise set mouse mode on or off.
+
+options:
+  -c    use copy-mode
+  -h    show this help
+EOF
+  exit 0
+}
+
+while getopts ch OPT
+do
+  case $OPT in
+    c) copy_mode=1 ;;
+    h) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ $# -eq 0 ]; then
+  if tmux show-options -gwv mode-mouse | grep -qe off; then
+    mode=on
+  else
+    mode=off
+  fi
+elif [ "$1" = on -o "$1" = off ]; then
+  mode="$1"
+else
+  echo "invalid mouse mode $1" 1>&2
+  exit 2
+fi
+  
+mode_mouse="$mode"
+[ "$mode" = on -a -n "$copy_mode" ] && mode_mouse=copy-mode
+
+tmux set-option -qg mode-mouse "$mode_mouse"
+tmux set-option -qg mouse-utf8 "$mode"
+tmux set-option -qg mouse-resize-pane "$mode"
+tmux set-option -qg mouse-select-pane "$mode"
+tmux set-option -qg mouse-select-window "$mode"
+tmux display-message "Mouse: $mode_mouse"
