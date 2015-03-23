@@ -30,3 +30,6 @@ Set mouse mode off
 ~~~~condole
 $ tmux-mouse off
 ~~~~
+
+## License
+[MIT](LICENSE)
